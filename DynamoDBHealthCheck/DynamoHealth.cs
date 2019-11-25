@@ -1,4 +1,5 @@
 ﻿using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
@@ -25,7 +26,6 @@ namespace DynamoDBHealthCheck
                 config.AuthenticationRegion = _options.AuthenticationRegion;
                 config.ServiceURL = _options.ConnectionString;
                 var client = new AmazonDynamoDBClient(credentials, config);
-
                 await client.DescribeTableAsync(_options.TableName,cancellationToken);
                 return HealthCheckResult.Healthy();
             }
