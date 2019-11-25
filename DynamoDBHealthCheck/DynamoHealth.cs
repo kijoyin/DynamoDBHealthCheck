@@ -26,7 +26,7 @@ namespace DynamoDBHealthCheck
                 config.ServiceURL = _options.ConnectionString;
                 var client = new AmazonDynamoDBClient(credentials, config);
 
-                await client.ListTablesAsync(cancellationToken);
+                await client.DescribeTableAsync(_options.TableName,cancellationToken);
                 return HealthCheckResult.Healthy();
             }
             catch (Exception ex)

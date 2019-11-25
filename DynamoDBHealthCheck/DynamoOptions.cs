@@ -11,5 +11,6 @@ namespace DynamoDBHealthCheck
         public string AWSSecretKey { get; set; }
         public string ConnectionString { get; set; }
         public string AuthenticationRegion { get; set; }
+        public string TableName { get; set; }
     }
 }
