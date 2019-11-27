@@ -12,5 +12,6 @@ namespace DynamoDBHealthCheck
         public string ConnectionString { get; set; }
         public string AuthenticationRegion { get; set; }
         public string TableName { get; set; }
+        public bool UseLocalDb { get; set; }
     }
 }

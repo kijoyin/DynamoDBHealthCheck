@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Internal;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -26,9 +28,22 @@ namespace DynamoDBHealthCheck
         public void ConfigureServices(IServiceCollection services)
         {
             // Adding the health check services
+            var dynamoDbConfig = Configuration.GetSection("dynamodb")
+                                               .Get<DynamoOptions>();
             services.AddHealthChecks()
-                     .AddDynamoDb(Configuration.GetSection("dynamodb")
-                                               .Get<DynamoOptions>());
+                     .AddDynamoDb(dynamoDbConfig);
+            if (dynamoDbConfig.UseLocalDb)
+            {
+                services.AddSingleton<IAmazonDynamoDB>(sp =>
+                {
+                    var clientConfig = new AmazonDynamoDBConfig { ServiceURL = dynamoDbConfig.ConnectionString };
+                    return new AmazonDynamoDBClient(clientConfig);
+                });
+            }
+            else
+            {
+                services.AddAWSService<IAmazonDynamoDB>();
+            }
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,10 +69,7 @@ namespace DynamoDBHealthCheck
                     },
                     ResponseWriter = WriteResponse
                 });
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                endpoints.MapControllers();
             });
         }
         private static Task WriteResponse(HttpContext httpContext, HealthReport result)
